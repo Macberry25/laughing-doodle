@@ -1,0 +1,38 @@
+import re
+
+def read_apache_logs(log_file_path, columns, regex_pattern=None):
+    logs = []
+
+    with open(log_file_path, 'r') as file:
+        for line in file:
+            if regex_pattern:
+                match = re.search(regex_pattern, line)
+                if not match:
+                    continue
+            log_data = line.strip().split()
+            log = [log_data[column] for column in columns]
+            logs.append(log)
+
+    return logs
+
+def display_logs(logs):
+    if not logs:
+        print("No logs found.")
+        return
+
+    column_width = max(len(entry) for log in logs for entry in log) + 2
+    headers = ["Column " + str(i+1) for i in range(len(logs[0]))]
+
+    print(" | ".join(header.ljust(column_width) for header in headers))
+    print("-" * (column_width * len(headers)))
+
+    for log in logs:
+        print(" | ".join(entry.ljust(column_width) for entry in log))
+
+if __name__ == "__main__":
+    log_file_path = "apache_logs.txt"
+    columns = [0, 3, 6]  # Specify the column indices to display (0-based)
+    regex_pattern = r'\d{3}'
+
+    logs = read_apache_logs(log_file_path, columns, regex_pattern)
+    display_logs(logs)
